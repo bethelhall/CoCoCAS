@@ -97,7 +97,7 @@ if len(sys.argv) > 1:
     def asymMSE(y_true, y_pred):
         distance = safe_region(6, 7000)
         # train the neural network by penalizing every distance that's grater than 0
-        d = (y_true - y_pred) - np.max(0, distance)
+        d = (y_true - y_pred) - np.min(0, distance)
         maxes = T.argmax(y_true, axis=1)
         maxes_onehot = T.extra_ops.to_one_hot(maxes, numOut)
         others_onehot = maxes_onehot - 1
