@@ -57,7 +57,7 @@ def safe_region(r, h, height_of_intruder=None):
     if height_of_intruder is None:
         height_of_intruder = [100, 200, 300]
 
-    if -Rp <= r & r < -Rp - r * V * tf.keras.backend.min(0, w * V) // ao:
+    if -Rp <= r & r < -Rp - r * V * tf.keras.backend.minimum(0, w * V) // ao:
 
         bound_1 = ao / 2 * np.square(r + Rp) + w * Rv * V * np.sum(r, Rp) - Rv ** 2 * Hp
 
