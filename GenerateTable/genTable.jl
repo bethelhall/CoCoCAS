@@ -21,4 +21,9 @@ qvals = solve(approx_solver, mdp)
 println("Writing Qvalues")
 h5open(saveFile, "w") do file
     write(file, "q", qvals) 
+<<<<<<< HEAD
 end
+=======
+end
+
+>>>>>>> 7fd28ff91bdff3a01ff175dc4b705c2df3bb5028
