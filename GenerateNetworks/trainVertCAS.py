@@ -6,7 +6,6 @@ import keras
 <<<<<<< HEAD
 =======
 import tensorflow as tf
->>>>>>> 7fd28ff91bdff3a01ff175dc4b705c2df3bb5028
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Dropout, Activation
 import h5py
@@ -14,8 +13,7 @@ from keras.optimizers import Adamax, Nadam
 import sys
 from writeNNet import saveNNet
 
-######## OPTIONS #########
-<<<<<<< HEAD
+######## OPTIONS ########
 ver = 4            # Neural network version
 hu = 45            # Number of hidden units in each hidden layer in network
 saveEvery = 10     # Epoch frequency of saving
