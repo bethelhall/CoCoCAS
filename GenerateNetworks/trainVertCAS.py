@@ -22,20 +22,55 @@ nnetFiles = "../networks/VertCAS_pra%02d_v%d_45HU_%03d.nnet"  # File format for 
 ##########################
 
 
-######## OPTIONS #########
+
 
 # CONSTANTS
 Rp = 4000
 Rv = 575.4
-Vi = 1000
-ao = 1000
-V = np.array(2000)
-w = 1
-Hp = 1000  # Height of NMAC
+pra = SCL1500
+ra = CL1500
+pd = 0
+eps = 3
+
+params = advisoryParams(ra, pd=pd, )
+
+# Get variables from params dict:
+w = params['w']
+vlo = params['vlo']
+alo = params['alo']
+ahi = params['ahi']
+wr = params['wr']
+vlor = params['vlor']
+ws = params['ws']
+vlos = params['vlos']
+eps = params['eps']
+pd = params['pd']
+# *****************************
+v = [-30, -1]
+vmin, vmax = v
+hInitLower = 0
+# traj = getNominalTraj(vmin,vmin,w*alo,0,pd,hInitLower,isLower=True
+Hp = 100  # Height of NMAC
 G = 32.2  # Gravitational acceleration
+
+# CONSTANTS
+HP = 100  # Height of NMAC
+G = 32.2  # Graviational acceleration
+
+'''
+Represents quadratic boundaries that take the form:
+    h = coeffs[0] + coeffs[1]*(t-minTau) + 0.5coeffs[2]*(t-minTau)^2
+'''
+
 # The previous RA should be given as a command line input
 # implement safe regions
-def safe_region(r, h, height_of_intruder=None):
+
+
+advisory = advisoryParams(ra, pd=pd, eps=eps)
+_, _, boundMin, boundMax = getSafeable(advisory, v, worstCase=False)
+
+
+def safe_region(r):
     """ Argument:
        r varies between 0nmi and 7nmi
        Hp between −4,000ft and 4,000ft
@@ -46,36 +81,43 @@ def safe_region(r, h, height_of_intruder=None):
     """
 
     """return:
-    d, the vertical distance between the safe region and the intruder. 
+    d, the vertical distance between the safe region and the intruder.
        If the intruder is in the safe region, d = 0.
        bound-1,
        bound-2,
        bound-3
        """
 
-    if height_of_intruder is None:
-        height_of_intruder = [100, 200, 300]
+    minH = boundMin[0].getH_minTau()
+    maxH = boundMax[0].getH_minTau()
+    maxTau = boundMax[-1].getMaxTau()
 
-    if -Rp <= r & r < -Rp - r * V *  np.minimum(0, w* V) / ao:
+    if -Rp <= r & r < -Rp - r * v * np.minimum(0, w * v) / alo:
 
-        bound_1 = ao / 2 * np.square(r + Rp) + w * Rv * V * np.sum(r, Rp) - Rv  2 * Hp
+        bound_1 = alo / 2.0 * np.square(r + Rp) + w * Rv * v * np.sum(r, Rp) - Rv * 2.0 * Hp
 
-        d = np.minimum(0, height_of_intruder[0] - bound_1)
+        if satisfiesBounds(bound_1 + boundMin, maxH, maxTau):
+            d = maxH - bound_1
 
-    elif -Rp - Rv * np.minimum(0, np.dot(w, V)) / ao <= r <= Rp - Rv * np.minimum(0, np.dot(w, V)) / ao:
+        return d
 
-        bound_2 = np.dot(w, h) < -np.square(np.minimum(0, np.dot(w, h))) / 2 * ao - Hp
+    elif -Rp - Rv * np.minimum(0, np.dot(w, v)) / alo <= r <= Rp - Rv * np.minimum(0, np.dot(w, v)) / alo:
 
-        d = np.minimum(0, height_of_intruder[1] - bound_2)
+        bound_2 = np.dot(w, maxH) < -np.square(np.minimum(0, np.dot(w, maxH))) / 2.0 * alo - Hp
+        if satisfiesBounds(bound_2 + boundMin, maxH, maxTau):
 
-    elif Rp - Rv * np.min(0, np.dot(w, V)) / ao < r <= Rp + Rv * np.maximum(0, w * np.subtract(Vi - V)) / ao:
+            d = maxH - bound_2
 
-        bound_3 = ao / 2 * np.square(r - Rp) + w * Rv * V * np.subtract(r, Rp) - Rv  2 * Hp
+        return d
 
-        d = np.minimum(0, height_of_intruder[3] - bound_3)
+    elif Rp - Rv * np.minimum(0, np.dot(w, v)) / alo < r <= Rp + Rv * np.maximum(0, w * np.subtract(vlo - v)) / alo:
 
-    return d
+        bound_3 = alo / 2.0 * np.square(r - Rp) + w * Rv * v * np.subtract(r, Rp) - Rv * 2.0 * Hp
+        if satisfiesBounds(bound_3 + boundMin, maxH, maxTau):
 
+            d = maxH - bound_3
+
+        return d
 
 # The previous RA should be given as a command line input
 
@@ -98,7 +140,7 @@ if len(sys.argv) > 1:
     lambd = 2
     
     def asymMSE(y_true, y_pred):
-        distance = safe_region(6, 7000)
+        distance = safe_region(20)
         # train the neural network by penalizing every distance that's grater than 0
         d = (y_true - y_pred) - tf.cast(lambd * tf.keras.backend.minimum(0, distance), dtype=tf.float32)
         maxes = tf.keras.backend.argmax(y_true, axis=-1)
