@@ -6,8 +6,6 @@ using HDF5
 
 ### OPTIONS ###
 saveFile = "./VertCAS_qvals_parallel_v7_tauMax40.h5"
-###############
-
 # Run in parallel on all available processors
 nProcs = nprocs()-1
 mdp = VerticalCAS_MDP()
@@ -21,9 +19,6 @@ qvals = solve(approx_solver, mdp)
 println("Writing Qvalues")
 h5open(saveFile, "w") do file
     write(file, "q", qvals) 
-<<<<<<< HEAD
 end
-=======
 end
 
->>>>>>> 7fd28ff91bdff3a01ff175dc4b705c2df3bb5028

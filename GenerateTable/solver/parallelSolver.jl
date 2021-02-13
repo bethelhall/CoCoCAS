@@ -40,11 +40,8 @@ function ValueIterationPolicy(mdp::Union{MDP,POMDP};
                               policy::Vector{Int64}=zeros(Int64, n_states(mdp)),
                               include_Q::Bool=true)
     ns = n_states(mdp)
-<<<<<<< HEAD
     na = length(actions(mdp))
-=======
     na = n_actions(mdp)
->>>>>>> 7fd28ff91bdff3a01ff175dc4b705c2df3bb5028
     @assert length(utility) == ns "Input utility dimension mismatch"
     @assert length(policy) == ns "Input policy dimension mismatch"
     action_map = ordered_actions(mdp)
@@ -103,11 +100,7 @@ function solve(solver::ParallelValueIterationSolver,mdp::Union{MDP, POMDP})
 
     # init shared utility function and Q-matrix    
     ns = length(interp_states)
-<<<<<<< HEAD
     na = length(actions(mdp))
-=======
-    na = n_actions(mdp)
->>>>>>> 7fd28ff91bdff3a01ff175dc4b705c2df3bb5028
 
     state_chunks = split_states(ns, n_procs)
     
