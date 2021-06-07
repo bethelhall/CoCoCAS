@@ -1,4 +1,4 @@
-# VerticalCAS
+# CoCoCAS (Extension of VerticalCAS)
 
 This repository has three main components:
 * Generate MDP table policy
