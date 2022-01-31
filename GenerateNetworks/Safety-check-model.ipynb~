@@ -1,0 +1,101 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": true
+    }
+   },
+   "outputs": [],
+   "source": [
+    "from tensorflow.keras.layers import Dense\n",
+    "from tensorflow.keras.optimizers import RMSprop\n",
+    "from tensorflow.keras import Sequential\n",
+    "import numpy as np\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": true,
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import tensorflow\n",
+    "def generate_square():\n",
+    "    x = np.linspace(-1,1,endpoint=True)\n",
+    "    y = x\n",
+    "    return x,y\n",
+    "\n",
+    "x,y = generate_square()\n",
+    "x = x.reshape(-1,1)\n",
+    "y = y.reshape(-1,1)\n",
+    "\n",
+    "\n",
+    "def custom_loss(lambd):\n",
+    "    def conditional_loss(y_true, y_pred):\n",
+    "        loss = tensorflow.keras.losses.mean_absolute_error(y_pred, y_true)\n",
+    "        return loss + lambd * y_pred if y_pred > 0 else loss\n",
+    "    return conditional_loss\n",
+    "loss = custom_loss(100)\n",
+    "model = tf.keras.Sequential([\n",
+    "    Dense(256, activation='relu'),\n",
+    "    Dense(256, activation='relu'),\n",
+    "    Dense(128, activation='relu'),\n",
+    "    Dense(1)\n",
+    "])\n",
+    "\n",
+    "opt = RMSprop(0.0001)\n",
+    "model.compile(\n",
+    "    loss=loss,\n",
+    "    optimizer=opt,\n",
+    "    metrics=['mae', 'mse']\n",
+    ")\n",
+    "model.build(x.shape)\n",
+    "model.summary()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": true,
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "history = model.fit(x, y, epochs=100)\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "name": "pycharm-d0715c8c",
+   "language": "python",
+   "display_name": "PyCharm (VerticalCAS)"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.11"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}
